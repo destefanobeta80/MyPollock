@@ -2,7 +2,9 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>MyPollock</title>
+  <title>My Pollock</title>
+  <!-- Meta viewport per evitare scaling indesiderato su mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     html, body {
       margin: 0;
@@ -24,6 +26,8 @@
       left: 20px;
       width: 40px;
       height: 40px;
+      min-width: 40px;    /* Dimensione minima fissa */
+      min-height: 40px;   /* Dimensione minima fissa */
       line-height: 40px;
       text-align: center;
       border-radius: 50%;
@@ -120,22 +124,6 @@
       display: block;
       opacity: 1;
     }
-    
-    /* Media query per mobile: aumenta dimensioni del pulsante e del menù */
-    @media (max-width: 600px) {
-      #menuBtn {
-        width: 60px;
-        height: 60px;
-        font-size: 30px;
-        line-height: 60px;
-      }
-      #colors {
-        top: 90px;
-        left: 20px;
-        padding: 20px;
-        min-width: 240px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -167,9 +155,9 @@
       <div style="background:white" data-bg="white" class="active"></div>
       <div style="background:black" data-bg="black"></div>
       <div style="background:#e57373" data-bg="#e57373"></div>
-      <div style="background:rgb(47, 163, 47)" data-bg="green"></div>
+      <div style="background:green" data-bg="green"></div>
       <div style="background:#64b5f6" data-bg="#64b5f6"></div>
-      <div style="background:rgb(253, 253, 93)" data-bg="yellow"></div>
+      <div style="background:yellow" data-bg="yellow"></div>
       <!-- Pulsante per sfondo trasparente -->
       <div style="background:repeating-conic-gradient(#fff 0% 25%, #ccc 0% 50%) 0 / 10px 10px;" data-bg="transparent"></div>
     </div>
@@ -286,10 +274,10 @@
         var clusterCount = Math.floor(rnd(3, 7));
         for (var i = 0; i < clusterCount; i++) {
           ctx.beginPath();
-          var splashSize = rnd(dropletOffset, splashMax) * (thick / maxT);
-          var offsetX = rnd(-splashOffsetMax, splashOffsetMax),
-              offsetY = rnd(-splashOffsetMax, splashOffsetMax);
-          var ovalFactor = rnd(splashOvalMin, splashOvalMax);
+          var splashSize = rnd(dropletOffset, splashMax) * (thick / maxT),
+              offsetX = rnd(-splashOffsetMax, splashOffsetMax),
+              offsetY = rnd(-splashOffsetMax, splashOffsetMax),
+              ovalFactor = rnd(splashOvalMin, splashOvalMax);
           ctx.ellipse(
             x + offsetX, y + offsetY,
             splashSize, splashSize * ovalFactor,
@@ -304,30 +292,34 @@
     function endDraw() { drawing = false; }
     function clearC() { ctx.clearRect(0, 0, W, H); }
 
-    /* Eventi mouse */
+    // Eventi mouse (desktop)
     cv.onmousedown = function(e) { startDraw(e.clientX, e.clientY); };
     cv.onmousemove = function(e) { if (drawing) doDraw(e.clientX, e.clientY); };
     cv.onmouseup = endDraw;
     cv.onmouseout = endDraw;
     cv.ondblclick = clearC;
 
-    /* Eventi touch per dispositivi mobili */
+    // Eventi touch (mobile)
     cv.addEventListener('touchstart', function(e) {
       e.preventDefault();
       var touch = e.touches[0];
       startDraw(touch.clientX, touch.clientY);
-    }, false);
+    });
     cv.addEventListener('touchmove', function(e) {
       e.preventDefault();
       if (drawing) {
         var touch = e.touches[0];
         doDraw(touch.clientX, touch.clientY);
       }
-    }, false);
+    });
     cv.addEventListener('touchend', function(e) {
       e.preventDefault();
       endDraw();
-    }, false);
+    });
+    cv.addEventListener('touchcancel', function(e) {
+      e.preventDefault();
+      endDraw();
+    });
 
     /* Menù e selezione colori */
     var menuBtn = document.getElementById('menuBtn'),
